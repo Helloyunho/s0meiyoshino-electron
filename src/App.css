@@ -1,0 +1,11 @@
+:root {
+  --mdc-theme-primary: #000
+}
+
+.main {
+  padding: 3rem;
+}
+
+h1 {
+  font-weight: 400;
+}

@@ -12,7 +12,7 @@ const tryConnection = () => client.connect({ port }, () => {
     console.log('starting electron')
     startedElectron = true
     const exec = require('child_process').exec
-    exec('yarn run electron')
+    exec('electron --inspect=5858 .')
   }
 })
 

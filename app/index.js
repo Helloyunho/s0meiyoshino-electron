@@ -1,4 +1,14 @@
 const { app, BrowserWindow } = require('electron')
+const libijs = require('libijs')
+const meaco = require('meaco')
+const checkInstalltion = require('./checkInstallation')
+const deviceType = require('../src/deviceType').default
+const supportediDevice = [
+  'iPhone3,1',
+  'iPhone5,1',
+  'iPhone5,2'
+]
+const deasync = require('deasync')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -14,6 +24,8 @@ function createWindow () {
     }
   })
 
+  checkInstalltion(win)
+
   // and load the index.html of the app.
   win.loadURL(process.env.DEVELOPING_SERVER ? 'http://localhost:5000' : 'file://index.html')
 
@@ -26,6 +38,47 @@ function createWindow () {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     win = null
+  })
+
+  win.webContents.once('did-finish-load', () => {
+    const deviceManager = libijs.createClient().deviceManager
+    const whenEventiDevice = () => {
+      if (deviceManager.devices.length === 0) {
+        win.webContents.send('ideviceStatus', [{
+          type: deviceType.NOT_PLUGGED
+        }])
+        return
+      }
+      const devices = []
+      deviceManager.devices.forEach(device => {
+        let done = false
+        meaco(function * () {
+          const lockdownClient = yield libijs.lockdownd.getClient(device)
+          const productType = yield lockdownClient.getValue(null, 'ProductType')
+          if (!(supportediDevice.includes(productType))) {
+            devices.push({
+              type: deviceType.NOT_SUPPORTED
+            })
+            return
+          }
+          const productVersion = yield lockdownClient.getValue(null, 'ProductVersion')
+          devices.push({
+            type: deviceType.SUPPORTED,
+            productType,
+            productVersion
+          })
+        }).done(() => done = true)
+        deasync.loopWhile(() => {
+          return !done
+        })
+      })
+      win.webContents.send('ideviceStatus', devices)
+    }
+    deviceManager.ready(whenEventiDevice)
+
+    deviceManager.attached(whenEventiDevice)
+
+    deviceManager.detached(whenEventiDevice)
   })
 }
 

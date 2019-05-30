@@ -1,0 +1,87 @@
+v1.0 - Initial commit
+       committed Nov 25, 2018
+** iPhone3,1のiOS 6.1.3への、xerub氏により公開されたiOS 7に存在するiBootのvulnerability (De Rebus Antiquis)を使用したSHSH blobなしのダウングレードのサポート。
+
+v1.1
+       committed Nov 25, 2018
+** v1.0に加えてiPhone3,1のiOS 6.1.2と7.0.4をサポート。
+
+v1.2 - Clean up
+       committed Nov 26, 2018
+
+v1.2.1
+       committed Nov 26, 2018
+** v1.1に加えてiPhone3,1のiOS 6のすべてのバージョンをサポート。
+
+v1.2.2
+       committed Nov 27, 2018
+** v1.1に加えてiPhone3,1のiOS 7のすべてのバージョンをサポート。
+
+v1.3
+      committed Nov 29, 2018
+!! v1.3.xの内容はv1.4~v3.0までの間に廃止されました。
+
+v1.4 b1
+      committed Dec 10, 2018
+** v1.2に加えてiPhone3,1のiOS 5.1.1をサポート。
+
+v2.0 b1
+     committed Dec 24, 2018
+** v1.4に加えてiPhone3,1のiOS 4.3.5をサポート (Yosemite以下のみ)。
+
+v2.0 b2
+     committed Dec 24, 2018
+** v2.0 b1に加えてYosemite以降のiPhone3,1のiOS 4.3.5をサポート。
+
+v2.0 b3
+     committed Dec 30, 2018
+** v2.0 b2に加えて試験的にiPhone3,1のiOS 4.3.3を不完全な状態で追加。
+
+v3.0 - supported iPhone5,2
+     committed Feb 1, 2019
+** iPhone5,2のサポートの追加。
+*** iPhone5,2はiOS 6.1.4のみサポート。
+*** iOS 6.1.4のSHSHは不要だが、iOS 7のiBoot vulnerabilityを発動させるためにiOS 7.0-7.0.6のいずれかのSHSHが必要。
+** v1.3アップデート内容の棄却。
+
+v3.1 - add iPhone5,2-11D257
+     committed Feb 1, 2019
+** v3.0に加えてiPhone5,2のiOS 7.1.2をサポート。
+
+v3.2 - Add 8.0.2, 9.0.2 9.3.5 for iPhone5,2
+     committed Feb 7, 2019
+** v3.1に加えてiPhone5,2のiOS 8.0.2, 9.0.2, 9.3.5をサポート。
+** iPhone5,2のiOS 9.3.5の完全脱獄を追加。iOS 7のiBoot vulnerabilityを発動させるためにiOS 7.0-7.0.6のいずれかのSHSHが必要。
+
+v3.3 - Add support for iPhone5,1 (untest)
+     committed Feb 7, 2019
+** iPhone5,1のサポートの試験的な追加。
+*** iPhone5,1はiOS 6.1.4のみサポート。
+*** iOS 6.1.4のSHSHは不要だが、iOS 7のiBoot vulnerabilityを発動させるためにiOS 7.0-7.0.6のいずれかのSHSHが必要。
+
+v3.3.1 - add 6.0-6.1.2 for iPhone5,2
+     committed Feb 13, 2019
+** v3.3に加えてiPhone5,2のiOS 6.0-6.0.2をサポート。
+
+v3.3.2 - add 7.x for iPhone5,2
+     committed Feb 15, 2019
+** v3.3.1に加えてiPhone5,2のiOS 7.xをサポート。
+
+v3.3.3 - add 9.x for iPhone5,2
+committed Feb 16, 2019
+** v3.3.2に加えてiPhone5,2のiOS 9.xをサポート。
+
+v3.3.4 - fix ramdisk size
+committed Feb 16, 2019
+な阪関無
+** ramdiskのサイズの調整。(Thanks @tomrobertson02)
+
+v3.4 - Add support for iPhone4,1 (untest)
+committed Feb 23, 2019
+** iPhone4,1のサポートの試験的な追加。(Thanks @nyanko_kota)
+*** iPhone4,1はiOS 7.1.2のみサポート。
+*** iOS 7のiBoot vulnerabilityを発動させるためにiOS 7.1(??), 7.1.1, 7.1.2のいずれかのSHSHが必要。
+
+v3.5 - Add 9.x jailbreak for iPhone5,2
+committed Feb 24, 2019
+** v3.2に加えてiPhone5,2の9.xのjailbreakをサポート。

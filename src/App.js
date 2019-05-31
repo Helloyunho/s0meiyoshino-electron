@@ -12,7 +12,8 @@ import {
   DrawerContent,
   List,
   ListItem,
-  Icon
+  Icon,
+  Select
 } from 'rmwc'
 import deviceType from './deviceType'
 import 'material-components-web/dist/material-components-web.min.css'
@@ -30,21 +31,38 @@ const NotPlugged = () => {
 
 const Plugged = (props) => {
   let supportDevices = props.idevices.filter(element => element.type === deviceType.default.SUPPORTED)
-  if (supportDevices.length === 0) {
+  let noSupportDevice = supportDevices.length === 0
+  const [deviceIndex, setIndexDevice] = React.useState(!noSupportDevice ? 0 : undefined)
+  React.useEffect(() => {
+    console.log(deviceIndex)
+  }, [deviceIndex])
+  if (noSupportDevice) {
     return (
       <>
         <h1>No supported iDevices found.</h1>
         <p>Make sure you plugged the supported device. (iPhone 4, iPhone 5)</p>
       </>
     )
-  } else {
-    return (
-      <>
-        <h1>Found a device!</h1>
-        <p>Great!</p>
-      </>
-    )
   }
+  return (
+    <>
+      <h1>s0meiyoshino</h1>
+      <p>Please select your device.</p>
+      <Select
+        label='Device'
+        enhanced
+        required
+        options={supportDevices.map((device, i) => {
+          return {
+            label: device.productType,
+            value: i.toString()
+          }
+        })}
+        defaultValue='0'
+        onChange={event => setIndexDevice(parseInt(event.currentTarget.value))}
+      />
+    </>
+  )
 }
 
 const App = () => {

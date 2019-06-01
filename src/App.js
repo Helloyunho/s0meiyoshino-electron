@@ -13,11 +13,16 @@ import {
   List,
   ListItem,
   Icon,
-  Select
+  Select,
+  Grid,
+  GridCell,
+  LinearProgress
 } from 'rmwc'
 import deviceType from './deviceType'
 import 'material-components-web/dist/material-components-web.min.css'
 import './App.css'
+import axios from 'axios'
+import supportVersion from './versions'
 const { ipcRenderer } = window.require('electron')
 
 const NotPlugged = () => {
@@ -32,10 +37,25 @@ const NotPlugged = () => {
 const Plugged = (props) => {
   let supportDevices = props.idevices.filter(element => element.type === deviceType.default.SUPPORTED)
   let noSupportDevice = supportDevices.length === 0
-  const [deviceIndex, setIndexDevice] = React.useState(!noSupportDevice ? 0 : undefined)
+  const [deviceIndex, setIndexDevice] = React.useState(0)
+  const [iOSVersions, setIOSVersions] = React.useState([])
+  const [iOSVersionIndex, setIOSVersionIndex] = React.useState(0)
+  const [versionChanged, setVersionChanged] = React.useState(false)
   React.useEffect(() => {
-    console.log(deviceIndex)
+    if (typeof deviceIndex !== 'undefined') {
+      let product = supportDevices[deviceIndex].productType
+      const getVersions = async () => {
+        let { data } = await axios(`https://api.ipsw.me/v4/device/${product}?type=ipsw`)
+        data = data.firmwares
+        setIOSVersions(data.filter(version => supportVersion[product].includes(version.buildid)))
+      }
+      getVersions()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deviceIndex])
+  React.useEffect(() => {
+    setVersionChanged(true)
+  }, [iOSVersionIndex])
   if (noSupportDevice) {
     return (
       <>
@@ -48,19 +68,42 @@ const Plugged = (props) => {
     <>
       <h1>s0meiyoshino</h1>
       <p>Please select your device.</p>
-      <Select
-        label='Device'
-        enhanced
-        required
-        options={supportDevices.map((device, i) => {
-          return {
-            label: device.productType,
-            value: i.toString()
-          }
-        })}
-        defaultValue='0'
-        onChange={event => setIndexDevice(parseInt(event.currentTarget.value))}
-      />
+      <Grid>
+        <GridCell>
+          <Select
+            label='Device'
+            enhanced
+            required
+            disabled={supportDevices.length === 1}
+            options={supportDevices.map((device, i) => {
+              return {
+                label: device.productType,
+                value: i.toString()
+              }
+            })}
+            value={deviceIndex.toString()}
+            defaultValue='0'
+            onChange={event => setIndexDevice(parseInt(event.currentTarget.value))}
+          />
+        </GridCell>
+        <GridCell>
+          <Select
+            label='Version'
+            enhanced
+            required
+            disabled={typeof deviceIndex === 'undefined'}
+            options={iOSVersions.map((version, i) => {
+              return {
+                label: version.version,
+                value: i.toString()
+              }
+            })}
+            value={iOSVersionIndex.toString()}
+            defaultValue='0'
+            onChange={event => setIOSVersionIndex(parseInt(event.currentTarget.value))}
+          />
+        </GridCell>
+      </Grid>
     </>
   )
 }

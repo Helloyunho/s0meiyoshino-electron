@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
 const libijs = require('libijs')
 const meaco = require('meaco')
 const checkInstalltion = require('./checkInstallation')
@@ -9,6 +9,7 @@ const supportediDevice = [
   'iPhone5,2'
 ]
 const deasync = require('deasync')
+const ipswUtils = require('./ipsw')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -102,6 +103,10 @@ app.on('activate', () => {
   if (win === null) {
     createWindow()
   }
+})
+
+ipcMain.on('ipsw-download', (sender, arg) => {
+  ipswUtils.getIPSW(arg, sender)
 })
 
 // In this file you can include the rest of your app's specific main process

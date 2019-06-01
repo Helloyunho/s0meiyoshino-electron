@@ -25,6 +25,29 @@ import axios from 'axios'
 import supportVersion from './versions'
 const { ipcRenderer } = window.require('electron')
 
+// Thanks to https://meetup.toast.com/posts/160
+class changeQueue {
+  constructor () {
+    this.list = []
+    this.index = 0
+  }
+
+  enqueue (c) {
+    this.list.push(c)
+  }
+
+  dequeue () {
+    const o = this.list[this.index]
+    this.index++
+
+    return o
+  }
+
+  get isEmpty () {
+    return this.list.length - this.index === 0
+  }
+}
+
 const NotPlugged = () => {
   return (
     <>
@@ -35,12 +58,14 @@ const NotPlugged = () => {
 }
 
 const Plugged = (props) => {
+  const progressChange = new changeQueue()
   let supportDevices = props.idevices.filter(element => element.type === deviceType.default.SUPPORTED)
   let noSupportDevice = supportDevices.length === 0
   const [deviceIndex, setIndexDevice] = React.useState(0)
   const [iOSVersions, setIOSVersions] = React.useState([])
   const [iOSVersionIndex, setIOSVersionIndex] = React.useState(0)
   const [versionChanged, setVersionChanged] = React.useState(false)
+  const [downloadPercentage, setDownloadPercentage] = React.useState(undefined)
   React.useEffect(() => {
     if (typeof deviceIndex !== 'undefined') {
       let product = supportDevices[deviceIndex].productType
@@ -48,13 +73,47 @@ const Plugged = (props) => {
         let { data } = await axios(`https://api.ipsw.me/v4/device/${product}?type=ipsw`)
         data = data.firmwares
         setIOSVersions(data.filter(version => supportVersion[product].includes(version.buildid)))
+        setIOSVersionIndex(0)
       }
       getVersions()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deviceIndex])
   React.useEffect(() => {
-    setVersionChanged(true)
+    if (typeof iOSVersions[iOSVersionIndex] !== 'undefined') {
+      setVersionChanged(true)
+      ipcRenderer.send('ipsw-download', iOSVersions[iOSVersionIndex].url)
+      const onGetChunkLength = (sender, arg) => {
+        progressChange.enqueue({
+          execute: () => {
+            setDownloadPercentage(arg)
+          }
+        })
+      }
+      const processChanges = (deadline) => {
+        while (deadline.timeRemaining() > 0 && !(progressChange.isEmpty)) {
+          const c = progressChange.dequeue()
+
+          if (c) {
+            c.execute()
+          }
+        }
+
+        if (!(progressChange.isEmpty)) {
+          requestIdleCallback(processChanges)
+        }
+      }
+      ipcRenderer.once('ipsw-download-start', (sender, arg) => {
+        ipcRenderer.on('ipsw-download-current', onGetChunkLength)
+        ipcRenderer.once('ipsw-download-current', () => requestIdleCallback(processChanges))
+      })
+      ipcRenderer.once('ipsw-download-done', () => {
+        ipcRenderer.off('ipsw-download-current', onGetChunkLength)
+        setVersionChanged(false)
+        setDownloadPercentage(undefined)
+      })
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [iOSVersionIndex])
   if (noSupportDevice) {
     return (
@@ -104,6 +163,7 @@ const Plugged = (props) => {
           />
         </GridCell>
       </Grid>
+      {versionChanged ? <LinearProgress progress={downloadPercentage}/> : null}
     </>
   )
 }

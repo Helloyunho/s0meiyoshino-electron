@@ -14,12 +14,14 @@ module.exports = {
         url: IPSWurl,
         responseType: 'stream'
       }).then(res => {
+        const lengthFile = parseInt(res.headers['content-length'])
         let totalChunk = 0
         const IPSWstream = fs.createWriteStream(getPath(pathFromURL))
-        sender.reply('ipsw-download-start', res.data.readableLength)
+        sender.reply('ipsw-download-start')
         res.data.on('data', (chunk) => {
-          totalChunk += chunk
-          sender.reply('ipsw-download-current', totalChunk)
+          totalChunk += chunk.length
+          const percentage = totalChunk / lengthFile
+          sender.reply('ipsw-download-current', percentage.toFixed(4))
         })
         IPSWstream.on('finish', () => {
           sender.reply('ipsw-download-done')

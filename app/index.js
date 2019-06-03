@@ -106,7 +106,11 @@ app.on('activate', () => {
 })
 
 ipcMain.on('ipsw-download', (sender, arg) => {
-  ipswUtils.getIPSW(arg, sender)
+  ipswUtils.getIPSW(arg[0], arg[1], sender)
+})
+
+ipcMain.on('ipsw-patch', (sender, arg) => {
+  ipswUtils.patchIPSW(sender, arg)
 })
 
 // In this file you can include the rest of your app's specific main process

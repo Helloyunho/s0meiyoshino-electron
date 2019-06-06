@@ -33,7 +33,7 @@ const iPhone5base = [
 const { ipcRenderer } = window.require('electron')
 
 // Thanks to https://meetup.toast.com/posts/160
-class changeQueue {
+class ChangeQueue {
   constructor () {
     this.list = []
     this.index = 0
@@ -66,7 +66,7 @@ const NotPlugged = () => {
 
 const Plugged = (props) => {
   // TODO: Clean these codes up for Contributer
-  const progressChange = new changeQueue()
+  const progressChange = new ChangeQueue()
   let supportDevices = props.idevices.filter(element => element.type === deviceType.default.SUPPORTED)
   let noSupportDevice = supportDevices.length === 0
   const [deviceIndex, setIndexDevice] = React.useState(0)
@@ -79,16 +79,16 @@ const Plugged = (props) => {
   const [IPSWpatched, setIPSWpatched] = React.useState(false)
   const [IPSWPercentage, setIPSWPercentage] = React.useState(undefined)
   const patchIPSW = () => {
-    if (typeof iOSVersions[iOSVersionIndex] !== 'undefined'
-    && (supportDevices[deviceIndex].productType === 'iPhone3,1'
-      || typeof baseIOSVersions[baseIOSIndex] !== 'undefined')
+    if (typeof iOSVersions[iOSVersionIndex] !== 'undefined' &&
+    (supportDevices[deviceIndex].productType === 'iPhone3,1' ||
+    typeof baseIOSVersions[baseIOSIndex] !== 'undefined')
     ) {
       ipcRenderer.send('ipsw-patch', {
         IPSWurl: iOSVersions[iOSVersionIndex].url,
         product: supportDevices[deviceIndex].productType,
         base: supportDevices[deviceIndex].productType === 'iPhone3,1'
-        ? '7.1.2'
-        : baseIOSVersions[baseIOSIndex].version
+          ? '7.1.2'
+          : baseIOSVersions[baseIOSIndex].version
       })
       ipcRenderer.once('ipsw-patch-start', (sender, arg) => {
         setPatchingIPSW(true)
@@ -118,9 +118,9 @@ const Plugged = (props) => {
   }, [deviceIndex])
   // TODO: Make another file for this shits
   React.useEffect(() => {
-    if (typeof iOSVersions[iOSVersionIndex] !== 'undefined'
-    && (supportDevices[deviceIndex].productType === 'iPhone3,1'
-      || typeof baseIOSVersions[baseIOSIndex] !== 'undefined')
+    if (typeof iOSVersions[iOSVersionIndex] !== 'undefined' &&
+    (supportDevices[deviceIndex].productType === 'iPhone3,1' ||
+    typeof baseIOSVersions[baseIOSIndex] !== 'undefined')
     ) {
       setVersionChanged(true)
       ipcRenderer.send(
@@ -128,18 +128,14 @@ const Plugged = (props) => {
         [
           iOSVersions[iOSVersionIndex].url,
           supportDevices[deviceIndex].productType === 'iPhone3,1'
-          ? (iOSVersions.filter(version => version.version === '7.1.2'))[0].url : baseIOSVersions[baseIOSIndex].url
+            ? (iOSVersions.filter(version => version.version === '7.1.2'))[0].url : baseIOSVersions[baseIOSIndex].url
         ]
       )
       const onGetChunkLength = (sender, arg) => {
         progressChange.enqueue({
           execute: () => {
             const now = Date.now()
-            while (Date.now() < now + 15) {
-            /* do nothing; this will exit once it reached the time limit */
-            /* if you want you could do something and exit*/
-            /* mostly I prefer to use this */
-            }
+            while (Date.now() < now + 15) {}
             setIPSWPercentage(arg)
           }
         })
@@ -154,11 +150,13 @@ const Plugged = (props) => {
         }
 
         if (!(progressChange.isEmpty)) {
+          // eslint-disable-next-line no-undef
           requestIdleCallback(processChanges)
         }
       }
       ipcRenderer.once('ipsw-download-start', (sender, arg) => {
         ipcRenderer.prependListener('ipsw-download-current', onGetChunkLength)
+        // eslint-disable-next-line no-undef
         ipcRenderer.once('ipsw-download-current', () => requestIdleCallback(processChanges))
       })
       ipcRenderer.once('ipsw-download-done', () => {
@@ -217,33 +215,33 @@ const Plugged = (props) => {
             onChange={event => setIOSVersionIndex(parseInt(event.currentTarget.value))}
           />
         </GridCell>
-        {typeof supportDevices[deviceIndex] !== 'undefined'
-        && supportDevices[deviceIndex].productType !== 'iPhone3,1'
-        ? (
-          <GridCell>
-            <Select
-              label='Target'
-              enhanced
-              required
-              disabled={typeof supportDevices[deviceIndex] === 'undefined'}
-              options={baseIOSVersions.map((version, i) => {
-                return {
-                  label: version.version,
-                  value: i.toString()
-                }
-              })}
-              value={baseIOSIndex.toString()}
-              defaultValue='0'
-              onChange={event => setBaseIOSIndex(parseInt(event.currentTarget.value))}
-            />
-          </GridCell>
-        ) : null}
+        {typeof supportDevices[deviceIndex] !== 'undefined' &&
+        supportDevices[deviceIndex].productType !== 'iPhone3,1'
+          ? (
+            <GridCell>
+              <Select
+                label='Target'
+                enhanced
+                required
+                disabled={typeof supportDevices[deviceIndex] === 'undefined'}
+                options={baseIOSVersions.map((version, i) => {
+                  return {
+                    label: version.version,
+                    value: i.toString()
+                  }
+                })}
+                value={baseIOSIndex.toString()}
+                defaultValue='0'
+                onChange={event => setBaseIOSIndex(parseInt(event.currentTarget.value))}
+              />
+            </GridCell>
+          ) : null}
         {/* TODO: Make a buttons for browse IPSW or download */}
       </Grid>
       {versionChanged
         ? <>
           <p>Downloading IPSW(s)...</p>
-          <LinearProgress progress={IPSWPercentage}/>
+          <LinearProgress progress={IPSWPercentage} />
         </> : null}
       {patchingIPSW
         ? <>
@@ -291,7 +289,7 @@ const App = () => {
       </TopAppBar>
       <div className='main'>
         {(ideviceStatus[0].type === deviceType.default.NOT_PLUGGED) ? <NotPlugged /> : <Plugged idevices={ideviceStatus} />}
-      </div> 
+      </div>
     </React.Fragment>
   )
 }

@@ -7,6 +7,7 @@ const url = require('url')
 const axios = require('axios')
 const errorType = require('../src/errorType')
 const EventEmitter = require('events')
+const childProcess = require('child_process')
 const iPhone5base = {
   '7.0': {
     BaseFWVer: '7.0',
@@ -107,7 +108,7 @@ module.exports = {
     }
   },
   patchIPSW: (sender, arg) => {
-    const pathFromURL = path.parse(url.parse(arg.IPSWurl).pathname).base
+    const pathFromURL = path.parse(url.parse(arg.target.url).pathname).base
     if (!(checkExist(getPatchedName(pathFromURL)))) {
       let Identifier
       let InternalName
@@ -168,6 +169,16 @@ module.exports = {
           error: errorType.IPSW_PATCH_BASE_NOT_FOUND
         })
       }
+      const OSXVer = childProcess.execSync(`sw_vers -productVersion | awk -F. ${arg.target.version}`)
+      let DD = 0
+      let JB = 0
+      let disablekaslr = 0
+      let sbops_patch = 0
+      let iBoot9 = 0
+      let DeveloperBeta = 0
+      let pangu9 = 0
+      let iBoot9_Partition_patch = '0'
+
     }
   }
 }
